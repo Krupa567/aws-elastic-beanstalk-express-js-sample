@@ -31,18 +31,17 @@ pipeline {
 
         stage('Build and Push Docker Image') {
             agent any
-            environment {
-                IMAGE_NAME = 'krupa23121609/aws-eb-express-sample'
-            }
             steps {
+                sh 'docker build -t krupa23121609/aws-eb-express-sample:$BUILD_NUMBER .'
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
-                    sh 'printf "%s" "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-                    sh 'docker push $IMAGE_NAME:$BUILD_NUMBER'
+                    sh '''
+                        printf '%s' "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push krupa23121609/aws-eb-express-sample:$BUILD_NUMBER
+                    '''
                 }
             }
         }
