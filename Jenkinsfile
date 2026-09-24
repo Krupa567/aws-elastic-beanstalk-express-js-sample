@@ -31,6 +31,7 @@ pipeline {
             steps {
                 sh 'npm audit --audit-level=high --json > npm-audit.json || true'
                 sh 'npm audit --audit-level=high'
+                archiveArtifacts artifacts: 'npm-audit.json', allowEmptyArchive: true
             }
         }
 
@@ -49,12 +50,6 @@ pipeline {
                     '''
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'npm-audit.json', allowEmptyArchive: true
         }
     }
 }
