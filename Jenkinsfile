@@ -1,6 +1,10 @@
 pipeline {
     agent none
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
     stages {
         stage('Install Dependencies') {
             agent {
@@ -25,6 +29,7 @@ pipeline {
                 docker { image 'node:16' }
             }
             steps {
+                sh 'npm audit --audit-level=high --json > npm-audit.json || true'
                 sh 'npm audit --audit-level=high'
             }
         }
@@ -44,6 +49,12 @@ pipeline {
                     '''
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'npm-audit.json', allowEmptyArchive: true
         }
     }
 }
